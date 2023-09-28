@@ -24,6 +24,7 @@ def create_unnormalized_hist(image):
 def normalize_hist(hist):
     # Get the sum of all the elements in the histogram
     total = np.sum(hist)
+   
     # Create a zeroed out array to store the values of the normalized histogram in.
     normalizedHist = np.zeros((256,), dtype=np.float32)
     
@@ -75,9 +76,9 @@ def get_hist_equalize_transform(image, do_stretching, do_cl=False, cl_thresh=0):
             cdf[i] = cdf[i] / lastElement
     
     # Create the transformation.
-    result = cdf * 255.0
+    int_transform = cdf * 255.0
     
-    int_transform = cv2.convertScaleAbs(cdf)[:,0]
+    int_transform = cv2.convertScaleAbs(int_transform)[:,0]
     
     return int_transform
     
@@ -91,10 +92,11 @@ def do_histogram_equalize(image, do_stretching):
     # Get the value,
     # Use your transformation to get the new value,
     # Store it into the output image.
-    for row in range(transformedImage.shape[0]):
-        for column in range(transformedImage.shape[1]): 
-            currentValue = transformedImage[row, column]
-            output[row, column] = currentValue
+    for row in range(output.shape[0]):
+        for column in range(output.shape[1]):
+            currentPixel = output[row, column]
+            newPixel = transformedImage[currentPixel]
+            output[row, column] = newPixel
         
     # Return the output image
     return output
