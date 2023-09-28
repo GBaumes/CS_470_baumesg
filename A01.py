@@ -54,10 +54,51 @@ def create_cdf(nhist):
     return cdf
         
 def get_hist_equalize_transform(image, do_stretching, do_cl=False, cl_thresh=0):
-    ''''''
+    # Call create_unnormalized_hist function.
+    unnormailzedHist = create_unnormalized_hist(image)
+    # Call normalize_hist function.
+    normalizedHist = normalize_hist(unnormailzedHist)
+    # Call create_cdf function.
+    cdf = create_cdf(normalizedHist)
+    
+    # If do_stretching is True, perfrom histogram stretching on cdf.
+    if do_stretching:
+        # Record the value of the cdf[0].
+        firstElement = cdf[0]
+        # Loop over the cdf values, subract firstElement from each value.
+        for i in range(cdf.shape[0]):
+            cdf[i] = cdf[i] - firstElement
+        # Get value of last element after the subtraction
+        lastElement = cdf[-1]
+        # Loop over the cdf values, divide by lastElement.
+        for i in range(cdf.shape[0]):
+            cdf[i] = cdf[i] / lastElement
+    
+    # Create the transformation.
+    result = cdf * 255.0
+    
+    int_transform = cv2.convertScaleAbs(cdf)[:,0]
+    
+    return int_transform
     
 def do_histogram_equalize(image, do_stretching):
-    ''''''
+    # Copy the image.
+    output = np.copy(image)
+    # call get_hist_equalize_transform
+    transformedImage = get_hist_equalize_transform(image, do_stretching)
+
+    # For each pixel in the image,
+    # Get the value,
+    # Use your transformation to get the new value,
+    # Store it into the output image.
+    for row in range(transformedImage.shape[0]):
+        for column in range(transformedImage.shape[1]): 
+            currentValue = transformedImage[row, column]
+            output[row, column] = currentValue
+        
+    # Return the output image
+    return output
+    
 
 def intensity_callback(input_img, do_stretching):
     input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2GRAY)
