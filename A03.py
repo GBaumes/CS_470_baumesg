@@ -1,6 +1,6 @@
 # A03 - Assignment 3 for CS 470. Detecting the bounding boxes for cells in the BCCD dataset.
 
-from skimage.segmentation import slic
+import skimage as ski
 import numpy as np
 import cv2
 
@@ -12,7 +12,7 @@ def find_WBC(image):
         Returns a list of detected bounding boxes.
     '''
     # Get superpixel groups.
-    segments = slic(image, n_segments=100, sigma=5, start_label=0)
+    segments = ski.segmentation.slic(image, start_label=0)
     
     # Calculate the number of superpixel groups 
     cnt = len(np.unique(segments))
@@ -79,25 +79,6 @@ def find_WBC(image):
     #         ymin, xmin, ymax, xmax = coords[0][0], coords[1][0], coords[0][-1], coords[1][-1]
     #         bounding_boxes.append((ymin, xmin, ymax, xmax))
             
-    
-        
-    
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     min_distance = float('inf')
     closest_group = 0
     
@@ -105,7 +86,7 @@ def find_WBC(image):
         distance = np.linalg.norm(centers[i] - WBC)
         if distance < min_distance:
             min_distance = distance
-            closest_group = 1
+            closest_group = i
         
     for i in range(k):
         if i == closest_group:
