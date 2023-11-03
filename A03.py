@@ -12,7 +12,7 @@ def find_WBC(image):
         Returns a list of detected bounding boxes.
     '''
     # Get superpixel groups.
-    segments = ski.segmentation.slic(image, start_label=0)
+    segments = ski.segmentation.slic(image, n_segments=50, sigma=5, start_label=0)
     
     # Calculate the number of superpixel groups 
     cnt = len(np.unique(segments))
@@ -43,73 +43,52 @@ def find_WBC(image):
     
     # White blood cells color value (BGR in openCV)
     WBC = np.array([255,0,0])
-    
-    # # Calculate the first center
-    # first_center = centers[0]
-    # min_distance = np.sqrt(np.sum((first_center - WBC)**2))
-    # closest_center = 0
-    
-    # # Loop through rest of centers to find closest one
-    # for i, center in enumerate(centers[1:]):
-    #     distance = np.sqrt(np.sum((center - WBC) ** 2))
-    #     if distance < min_distance:
-    #         min_distance = distance
-    #         closest_center = i
-    
-    # new_centers = centers.copy()
-    
-    # for i, center in enumerate(centers):
-    #     if np.array_equal(center, centers[closest_center]):
-    #         new_centers[i] = np.array([255,255,255])
-    #     else:
-    #         new_centers[i] = np.array([0,0,0])
             
-    # centersUint8 = new_centers.astype(np.uint8)
-    # colors_per_clump = centersUint8[bestLabels.flatten()]
-    
-    # cell_mask = colors_per_clump[segments]
-    # cell_mask = cv2.cvtColor(cell_mask, cv2.COLOR_BGR2GRAY)
-    
-    # retval, labels = cv2.connectedComponents(cell_mask)
-    
-    # bounding_boxes = []
-    # for i in range(1, retval):
-    #     coords = np.where(labels == i)
-    #     if coords:
-    #         ymin, xmin, ymax, xmax = coords[0][0], coords[1][0], coords[0][-1], coords[1][-1]
-    #         bounding_boxes.append((ymin, xmin, ymax, xmax))
-            
-    min_distance = float('inf')
+    # numpy constant for positive infinity
+    min_distance = np.inf
+    # initialize closest_group to the first group
     closest_group = 0
     
+    # Loop through the number of clusters
     for i in range(k):
-        distance = np.linalg.norm(centers[i] - WBC)
+        # Find distance from the target color
+        distance = np.sqrt(np.sum((centers[i] - WBC)**2))
+        # If the distance is less than positive infinity set the min_distance equal to that distance, and set the closest group equal to i (the current cluster)
         if distance < min_distance:
             min_distance = distance
             closest_group = i
         
+    # Loop through number of clusters. Set the closest_group to white and the rest of the clusters to black
     for i in range(k):
         if i == closest_group:
             centers[i] = [255,255,255]
         else:
             centers[i] = [0,0,0]
     
+    # Convert the centers to unsigned 8-bit
     centers = centers.astype(np.uint8)
+    # Get the new superpixel group colors
     colors_per_clump = centers[bestLabels.flatten()]
     
+    # Create a new image
     cell_mask = colors_per_clump[segments]
     
+    # Convert to grayscale
     cell_mask_gray = cv2.cvtColor(cell_mask, cv2.COLOR_BGR2GRAY)
     
+    # Get disjoint blobs from cell_mask
     retval, labels = cv2.connectedComponents(cell_mask_gray, connectivity=4)
     
+    # Create empty list to store bounding boxes.
     bounding_boxes = []
     
+    # For each blob group except 0 get the coords of the pixel and ass those coords to the bounding_boxes list.
     for i in range(1, retval):
         coords = np.where(labels == i)
         if len(coords[0]) > 0:
             ymin, xmin = np.min(coords, axis=1)
             ymax, xmax = np.max(coords, axis=1)
             bounding_boxes.append((ymin, xmin, ymax, xmax))
-            
+        
+    # Return bounding_boxes list
     return bounding_boxes
