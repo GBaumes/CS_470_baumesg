@@ -3,6 +3,8 @@
 # 11/14/2023
 
 from General_A04 import *
+import cv2
+import numpy as np
 
 def getOneLBPLabel(subimage, label_type):
     
@@ -54,7 +56,27 @@ def getOneLBPLabel(subimage, label_type):
     return label
     
 def getLBPImage(image, label_type):
-    ''''''
+    # Create a padded image with a 1 on all sides
+    paddedImage = cv2.copyMakeBorder(image, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value=0)
+    # Create and empty array to store outputs
+    output = np.zeros_like(image)
+    
+    
+    for i in range(1, image.shape[0] + 1):
+        for j in range(1, image.shape[0] + 1):
+            startRow = i - 1
+            endRow = i + 2
+            startCol = j - 1
+            endCol = j + 2
+            
+            subimage = paddedImage[startRow:endRow, startCol,endCol]
+            label = getOneLBPLabel(subimage)
+            
+            output[i-1, j-1] = label
+            
+    return output
+            
+            
     
 def getOneRegionLBPFeatures(subimage, label_type):
     ''''''
