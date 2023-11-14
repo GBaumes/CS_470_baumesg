@@ -78,11 +78,57 @@ def getLBPImage(image, label_type):
     
     # Return the output image
     return output
-            
-            
     
 def getOneRegionLBPFeatures(subimage, label_type):
-    ''''''
+    # Initialize unnoramlized histogram as zero array shape 10 b/c uniform
+    unnormalizedHist = np.zeros((10,), dtype=np.float32)
+    # Loop over pizels and store in unnormalized hist
+    for row in range(subimage.shape[0]):
+        for column in range(subimage.shape[1]):
+            currentPixel = subimage[row, column]
+            unnormalizedHist[currentPixel] += 1
+    # Initialize normalized histogram as zero array    
+    normalizedHist = np.zeros((10,), dtype=np.float32)
+    # Get the total sum of all pixels in the unnormalized histogram
+    total = np.sum(unnormalizedHist)
+    # Loop over unnormalized histogram and store normalized
+    for i in range(unnormalizedHist.shape[0]):
+        normalizedHist[i] = unnormalizedHist[i]/total
+    
+    # Return the normalized histogram
+    return normalizedHist
+
     
 def getLBPFeatures(featureImage, regionSideCnt, label_type):
-    ''''''
+    # Get the dimension of the featuredImage
+    imageHeight = featureImage.shape[0]
+    imageWidth = featureImage.shape[1]
+    
+    # Get the subregions width and height
+    subHeight = imageHeight // regionSideCnt # Floor division
+    subWidth = imageWidth // regionSideCnt
+    
+    # Create empty list for histograms
+    allHists = []
+    
+    # Loop through subregions
+    for i in range(regionSideCnt):
+        for j in range(regionSideCnt):
+            # Starting point for each subregion
+            startRow = i * subHeight
+            startCol = j * subWidth
+            
+            # Get subimage
+            subImage = featureImage[startRow:startRow + subHeight, startCol: startCol + subWidth]
+            
+            # getOneRegionLBPFeatures
+            histogram = getOneRegionLBPFeatures(subImage)
+            
+            # Append to list
+            allHists.append(histogram)
+            
+    # Convert list to array and reshape
+    allHists = np.array(allHists)
+    allHists = np.reshape(allHists, (allHists.shape[0]*allHists.shape[1],))
+    
+    return allHists
