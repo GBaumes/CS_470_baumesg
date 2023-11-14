@@ -6,7 +6,7 @@ from General_A04 import *
 import cv2
 import numpy as np
 
-def getOneLBPLabel(subimage, label_type):
+def getOneLBPLabel(subimage, label_type=LBP_LABEL_TYPES.UNIFORM):
     
     # The center pixel of the subimage
     center = subimage[1,1]
@@ -55,7 +55,7 @@ def getOneLBPLabel(subimage, label_type):
     # Return label
     return label
     
-def getLBPImage(image, label_type):
+def getLBPImage(image, label_type=LBP_LABEL_TYPES.UNIFORM):
     # Create a padded image with a 1 on all sides
     paddedImage = cv2.copyMakeBorder(image, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value=0)
     # Create and empty array to store outputs
@@ -63,13 +63,13 @@ def getLBPImage(image, label_type):
     
     # Loop over each pixel and get subimage
     for i in range(1, image.shape[0] + 1):
-        for j in range(1, image.shape[0] + 1):
+        for j in range(1, image.shape[1] + 1):
             startRow = i - 1
             endRow = i + 2
             startCol = j - 1
             endCol = j + 2
             
-            subimage = paddedImage[startRow:endRow, startCol,endCol]
+            subimage = paddedImage[startRow:endRow, startCol:endCol]
             # Get the label for the subimage
             label = getOneLBPLabel(subimage)
             
@@ -79,7 +79,7 @@ def getLBPImage(image, label_type):
     # Return the output image
     return output
     
-def getOneRegionLBPFeatures(subimage, label_type):
+def getOneRegionLBPFeatures(subimage, label_type=LBP_LABEL_TYPES.UNIFORM):
     # Initialize unnoramlized histogram as zero array shape 10 b/c uniform
     unnormalizedHist = np.zeros((10,), dtype=np.float32)
     # Loop over pizels and store in unnormalized hist
@@ -99,7 +99,7 @@ def getOneRegionLBPFeatures(subimage, label_type):
     return normalizedHist
 
     
-def getLBPFeatures(featureImage, regionSideCnt, label_type):
+def getLBPFeatures(featureImage, regionSideCnt, label_type=LBP_LABEL_TYPES.UNIFORM):
     # Get the dimension of the featuredImage
     imageHeight = featureImage.shape[0]
     imageWidth = featureImage.shape[1]
