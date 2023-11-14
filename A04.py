@@ -61,7 +61,7 @@ def getLBPImage(image, label_type):
     # Create and empty array to store outputs
     output = np.zeros_like(image)
     
-    
+    # Loop over each pixel and get subimage
     for i in range(1, image.shape[0] + 1):
         for j in range(1, image.shape[0] + 1):
             startRow = i - 1
@@ -70,10 +70,13 @@ def getLBPImage(image, label_type):
             endCol = j + 2
             
             subimage = paddedImage[startRow:endRow, startCol,endCol]
+            # Get the label for the subimage
             label = getOneLBPLabel(subimage)
             
+            # Store the label in the output
             output[i-1, j-1] = label
-            
+    
+    # Return the output image
     return output
             
             
