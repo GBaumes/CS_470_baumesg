@@ -45,18 +45,27 @@ class CustomCNN(nn.Module):
         self.relu3 = nn.ReLU()
         self.fc2 = nn.Linear(512, class_cnt)
 
+    # Forward pass through the network
     def forward(self, x):
+        
+        # First convolutional layer, activation, and pooling
         x = self.conv1(x)
         x = self.relu1(x)
         x = self.pool1(x)
 
+        # Second convolutional layer, activation, and pooling
         x = self.conv2(x)
         x = self.relu2(x)
         x = self.pool2(x)
 
+        # Flatten the output for the fully connected layers
         x = self.flatten(x)
+        
+        # First fully connected layer and activation
         x = self.fc1(x)
         x = self.relu3(x)
+        
+        # Second fully connected layer (output layer)
         x = self.fc2(x)
 
         return x
@@ -106,6 +115,7 @@ def get_batch_size(approach_name):
     return batch_size
 
 def create_model(approach_name, class_cnt):
+    # Generate model and return
     model = CustomCNN(approach_name, class_cnt)
     return model
 
@@ -122,7 +132,7 @@ def train_model(approach_name, model, device, train_dataloader, test_dataloader)
     # Set the model in training mode
     model.train()
 
-    # Define the number of training epochs (you are free to decide)
+    # number of training epochs
     num_epochs = 10
 
     for epoch in range(num_epochs):
@@ -149,11 +159,8 @@ def train_model(approach_name, model, device, train_dataloader, test_dataloader)
             # Update running loss
             running_loss += loss.item()
 
-        # Print the average loss for each epoch
+        # Print out loss for each epoch
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(train_dataloader)}")
-
-        # Evaluate on the test dataset (print, but do not use for dynamic tuning)
-        # evaluate_model(model, device, test_dataloader)
 
     return model
 
