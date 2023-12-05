@@ -4,5 +4,6 @@
 *.pyc
 __pycache__/
 Pipfile.lock
-flagged
+data/
 output_wbc
+/assign05/output/model_CNN*
