@@ -21,8 +21,7 @@ class CustomCNN(nn.Module):
             self.relu2 = nn.ReLU()
             self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-            # Calculate the input size for the fully connected layers dynamically
-            # based on the output size of the last convolutional layer
+            # Calculate the input size for the fully connected layers
             self.fc_input_size = 128 * 8 * 8 
 
         elif approach_name == "CNN1":
@@ -35,8 +34,7 @@ class CustomCNN(nn.Module):
             self.relu2 = nn.ReLU()
             self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-            # Calculate the input size for the fully connected layers dynamically
-            # based on the output size of the last convolutional layer
+            # Calculate the input size
             self.fc_input_size = 64 * 8 * 8
 
         
@@ -123,7 +121,8 @@ def train_model(approach_name, model, device, train_dataloader, test_dataloader)
     # Define the loss function
     criterion = nn.CrossEntropyLoss()
 
-    # Choose an optimizer (you are free to choose any optimizer)
+    # Adam optimizer from PyTorch https://pytorch.org/docs/stable/generated/torch.optim.Adam.html
+    # Takes in models paramters and a learning rate
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Move the model to the specified device
